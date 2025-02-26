@@ -26,7 +26,10 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(useMaterial3: true, brightness: Brightness.light),
       darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
       themeMode: _themeMode,
-      home: HomeScreen(toggleTheme: toggleTheme),
+      home: DefaultTabController (
+        length: 2,
+        child: HomeScreen(toggleTheme: toggleTheme),
+      ),
     );
   }
 }
@@ -40,10 +43,23 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin{
   bool _isVisible = true; // Controls text visibility
   Color pickerColor = Colors.black; // Default text color
   Color textColor = const Color(0xff443a49); // Initial text color
+  late TabController _tabController;
+
+  @override
+  void initState(){
+    super.initState();
+    _tabController =TabController(length: 2, vsync:this);
+  }
+
+  @override
+  void dispose(){
+    _tabController.dispose();
+    super.dispose();
+  }
 
   void changeColor(Color color) {
     setState(() {
@@ -58,6 +74,27 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Widget buildAnimatedTab(String text, Duration duration) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AnimatedOpacity(
+          opacity: _isVisible ? 1.0 : 0.0,
+          duration: duration,
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 24, color: textColor),
+          ),
+        ),
+        const SizedBox(height: 20),
+        BlockPicker(
+          pickerColor: textColor,
+          onColorChanged: changeColor,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -65,6 +102,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Fading Text Animation"),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: "Animation 1"),
+            Tab(text: "Animation 2"),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(isDarkMode ? Icons.wb_sunny : Icons.nightlight_round),
@@ -72,24 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          Center(
-            child: AnimatedOpacity(
-              opacity: _isVisible ? 1.0 : 0.0,
-              duration: const Duration(seconds: 1),
-              child: Text(
-                'Hello, Flutter!',
-                style: TextStyle(fontSize: 24, color: textColor),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          BlockPicker(
-            pickerColor: textColor,
-            onColorChanged: changeColor,
-          ),
+          // First tab: "Hello, Flutter!" with 1-second duration
+          buildAnimatedTab("Hello, Flutter!", const Duration(seconds: 1)),
+          // Second tab: "Goodbye, Flutter!" with 3-second duration
+          buildAnimatedTab("Goodbye, Flutter!", const Duration(seconds: 3)),
         ],
       ),
       floatingActionButton: Row(
