@@ -40,10 +40,10 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _FadingTextAnimationState extends State<FadingTextAnimation> {
-  bool _isVisible = true;
-  Color pickerColor = Colors.black;
-  Color textColor = Color(0xff443a49);
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isVisible = true; // Controls text visibility
+  Color pickerColor = Colors.black; // Default text color
+  Color textColor = const Color(0xff443a49); // Initial text color
 
   void changeColor(Color color) {
     setState(() {
@@ -78,20 +78,19 @@ class _FadingTextAnimationState extends State<FadingTextAnimation> {
           Center(
             child: AnimatedOpacity(
               opacity: _isVisible ? 1.0 : 0.0,
-              duration: Duration(seconds: 1),
+              duration: const Duration(seconds: 1),
               child: Text(
                 'Hello, Flutter!',
                 style: TextStyle(fontSize: 24, color: textColor),
               ),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           BlockPicker(
-          pickerColor: textColor, 
-          onColorChanged: changeColor,
+            pickerColor: textColor,
+            onColorChanged: changeColor,
           ),
         ],
-        
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
